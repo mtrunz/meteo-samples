@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>RealEarth API on OpenLayers</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.5.0/css/ol.css" type="text/css">
+    <style>
+    #map {
+        height: 100%;
+    }
+
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.5.0/build/ol.js"></script>
+    <script>
+    let map;
+    $( document ).ready(function() {
+          //create the new XYZ source and fill out the Tile URL to match the RealEarth API requirements
+          var satellite_source = new ol.source.XYZ({
+            url: 'https://realearth.ssec.wisc.edu/tiles/globalir-ott/{z}/{x}/{y}.png'
+          });
+
+          //creates a new map using the OpenLayers API
+          map = new ol.Map({
+            target: 'map',
+            layers: [
+              new ol.layer.Tile({
+                source: new ol.source.OSM()
+              }),
+              new ol.layer.Tile({source: satellite_source}),
+            ],
+            view: new ol.View({
+              center: ol.proj.fromLonLat([0.0, 0.0]),
+              zoom: 2
+            })
+          });
+    });
+    </script>
+  </head>
+  <body>
+    <div id="map"></div>
+  </body>
+</html>

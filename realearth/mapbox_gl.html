@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>RealEarth API on Mapbox GL</title>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+    #map {
+        height: 100%;
+    }
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js'></script>
+    <script>
+    let map;
+    $( document ).ready(function() {
+      // TO MAKE THE MAP APPEAR YOU MUST
+      // ADD YOUR ACCESS TOKEN FROM
+      // https://account.mapbox.com
+      mapboxgl.accessToken = '<your access token here>';
+      map = new mapboxgl.Map({
+        container: 'map', // container id,
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [0.0, 0.0], // starting position [lng, lat]
+        zoom: 2 // starting zoom
+      });
+
+      map.on('load', function () {
+        map.addSource('satellite', {
+          'type': 'raster',
+          'tiles': [
+            'https://realearth.ssec.wisc.edu/tiles/globalir-ott/{z}/{x}/{y}.png'
+          ],
+          'tileSize': 256,
+          'attribution':
+          'Satellite tiles by <a target="_top" rel="noopener" href="https://realearth.ssec.wisc.edu/">University of Wisconsin-Madison SSEC</a>'
+        });
+        map.addLayer({
+          'id': 'satellite',
+          'type': 'raster',
+          'source': 'satellite',
+          'minzoom': 0,
+          'maxzoom': 22
+        });
+      });
+    });
+    </script>
+  </head>
+  <body>
+    <div id="map"></div>
+  </body>
+</html>

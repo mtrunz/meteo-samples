@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>RainViewer API on Google Maps</title>
+    <style>
+    #map {
+        height: 100%;
+    }
+
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script>
+    let map;
+    let radar_times = [];
+    function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+            center: { lat: 0.0, lng: 0.0 },
+            zoom: 3,
+        });
+
+        //grabs the latest radar times from the JSON file
+        $.ajax({ 
+            url: 'https://tilecache.rainviewer.com/api/maps.json',
+            type: 'get',
+            success: function(response)
+            {
+                //loops through the JSON file contents and stores them in a array
+                $.each(response, function(key,value) {
+                        radar_times.push(value);
+                });
+                    
+                //reverse the array
+                radar_times.reverse();
+
+                //create a new Image Map Type Layer and fill out the Tile URL to match the RainViewer API requirements
+                var radar_layer = new google.maps.ImageMapType({
+                  name: 'radar_data',
+                  getTileUrl: function(coord, zoom) {
+                    var url = 'https://tilecache.rainviewer.com/v2/radar/'+radar_times[0]+'/256/'+zoom+'/'+coord.x+'/'+coord.y+'/7/1_1.png';
+                    return url;
+                  },
+                  tileSize: new google.maps.Size(256, 256),
+                  minZoom: 1,
+                  maxZoom: 20
+                });
+                map.overlayMapTypes.setAt(0,radar_layer);
+            }
+        });
+    }
+    </script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=[google maps api key here]&callback=initMap&libraries=&v=weekly"
+      async
+    ></script>
+  </body>
+</html>

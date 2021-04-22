@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>RainViewer API on Mapbox GL</title>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+    #map {
+        height: 100%;
+    }
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js'></script>
+    <script>
+    let map;
+    let radar_times = [];
+    $( document ).ready(function() {
+      //grabs the latest radar times from the JSON file
+      $.ajax({ 
+        url: 'https://tilecache.rainviewer.com/api/maps.json',
+        type: 'get',
+        success: function(response)
+        {
+          //loops through the JSON file contents and stores them in a array
+          $.each(response, function(key,value) {
+            radar_times.push(value);
+          });
+              
+          //reverse the array
+          radar_times.reverse();
+
+          // TO MAKE THE MAP APPEAR YOU MUST
+          // ADD YOUR ACCESS TOKEN FROM
+          // https://account.mapbox.com
+          mapboxgl.accessToken = '<your access token here>';
+          map = new mapboxgl.Map({
+            container: 'map', // container id,
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [0.0, 0.0], // starting position [lng, lat]
+            zoom: 2 // starting zoom
+          });
+
+          map.on('load', function () {
+            map.addSource('radar', {
+              'type': 'raster',
+              'tiles': [
+                'https://tilecache.rainviewer.com/v2/radar/'+radar_times[0]+'/256/{z}/{x}/{y}/7/1_1.png'
+              ],
+              'tileSize': 256,
+              'attribution':
+              'Radar tiles by <a target="_top" rel="noopener" href="https://www.rainviewer.com/">RainViewer</a>'
+            });
+            map.addLayer({
+              'id': 'radar',
+              'type': 'raster',
+              'source': 'radar',
+              'minzoom': 0,
+              'maxzoom': 22
+            });
+          });
+        }
+      });
+    });
+    </script>
+  </head>
+  <body>
+    <div id="map"></div>
+  </body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>RainViewer API on OpenLayers</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.5.0/css/ol.css" type="text/css">
+    <style>
+    #map {
+        height: 100%;
+    }
+
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.5.0/build/ol.js"></script>
+    <script>
+    let map;
+    let radar_times = [];
+    $( document ).ready(function() {
+      //grabs the latest radar times from the JSON file
+      $.ajax({ 
+        url: 'https://tilecache.rainviewer.com/api/maps.json',
+        type: 'get',
+        success: function(response)
+        {
+          //loops through the JSON file contents and stores them in a array
+          $.each(response, function(key,value) {
+            radar_times.push(value);
+          });
+              
+          //reverse the array
+          radar_times.reverse();
+
+          //create the new XYZ source and fill out the Tile URL to match the RainViewer API requirements
+          var radar_source = new ol.source.XYZ({
+            url: 'https://tilecache.rainviewer.com/v2/radar/'+radar_times[0]+'/256/{z}/{x}/{y}/7/1_1.png'
+          });
+
+          //creates a new map using the OpenLayers API
+          map = new ol.Map({
+            target: 'map',
+            layers: [
+              new ol.layer.Tile({
+                source: new ol.source.OSM()
+              }),
+              new ol.layer.Tile({source: radar_source}),
+            ],
+            view: new ol.View({
+              center: ol.proj.fromLonLat([0.0, 0.0]),
+              zoom: 2
+            })
+          });
+        }
+      });
+    });
+    </script>
+  </head>
+  <body>
+    <div id="map"></div>
+  </body>
+</html>
